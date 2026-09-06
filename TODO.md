@@ -1,0 +1,4 @@
+- add right click functionality to syringe
+- [ ] extract from potions and get effect on syringe
+- [ ] inject self
+- [ ] inject others [players, entities]
