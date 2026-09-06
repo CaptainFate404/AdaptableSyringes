@@ -1,2 +1,2 @@
-AdaptableSyringes adds a few items that allow you to inject potions quickly into your bloodstream!
-...or others...
+# Adaptable Syringes
+A Minecraft mod for the syringes I have always wanted.
