@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "adaptablesyringes",
+  "version": "${version}",
+
+  "name": "AdaptableSyringes",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "All-Rights-Reserved",
+  "icon": "assets/adaptablesyringes/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": ["captainfate404.adaptablesyringes.client.AdaptablesyringesDataGenerator"],
+    "client": ["captainfate404.adaptablesyringes.client.AdaptablesyringesClient"],
+    "main": [
+      "net.captainfate404.adaptablesyringes.AdaptableSyringes"
+    ]
+  },
+
+  "mixins": [
+    "adaptablesyringes.mixins.json"
+    ,{
+      "config": "adaptablesyringes.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

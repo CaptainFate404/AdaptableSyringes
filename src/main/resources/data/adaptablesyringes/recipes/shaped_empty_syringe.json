@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  N",
+    " I ",
+    "i  "
+  ],
+  "key": {
+    "N": {
+      "item": "adaptablesyringes:needle"
+    },
+    "i": {
+      "item": "minecraft:iron_nugget"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "adaptablesyringes:empty_syringe",
+    "count": 1
+  }
+}
