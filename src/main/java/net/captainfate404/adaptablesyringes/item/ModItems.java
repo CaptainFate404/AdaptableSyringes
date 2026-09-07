@@ -1,6 +1,7 @@
 package net.captainfate404.adaptablesyringes.item;
 
 import net.captainfate404.adaptablesyringes.AdaptableSyringes;
+import net.captainfate404.adaptablesyringes.item.custom.EffectItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -12,11 +13,11 @@ import net.minecraft.util.Identifier;
 
 
 public class ModItems {
-    public static final Item EMPTY_SYRINGE = registerItem("empty_syringe", new Item(new FabricItemSettings()));
+    public static final EffectItem SYRINGE = (EffectItem) registerItem("syringe", new EffectItem(new FabricItemSettings()));
     public static final Item NEEDLE = registerItem("needle", new Item(new FabricItemSettings()));
 
     private static void addItemsToToolsItemGroup(FabricItemGroupEntries entries) {
-        entries.add(EMPTY_SYRINGE);
+        entries.add(SYRINGE);
         entries.add(NEEDLE);
     }
 

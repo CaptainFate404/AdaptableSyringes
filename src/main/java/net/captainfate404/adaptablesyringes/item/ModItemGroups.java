@@ -13,8 +13,8 @@ public class ModItemGroups {
     public static final ItemGroup ADAPTABLESYRINGES_GROUP = Registry.register(Registries.ITEM_GROUP,
             new Identifier(AdaptableSyringes.MOD_ID, "adaptablesyringes"),
             FabricItemGroup.builder().displayName(Text.translatable("itemgroup.adaptablesyringes"))
-                    .icon(() -> new ItemStack(ModItems.EMPTY_SYRINGE)).entries((displayContext, entries) -> {
-                        entries.add(ModItems.EMPTY_SYRINGE);
+                    .icon(() -> new ItemStack(ModItems.SYRINGE)).entries((displayContext, entries) -> {
+                        entries.add(ModItems.SYRINGE);
                         entries.add(ModItems.NEEDLE);
 
                     }).build());
