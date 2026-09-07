@@ -2,5 +2,13 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "adaptablesyringes:item/syringe"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "adaptablesyringes:filled": 1.0
+      },
+      "model": "adaptablesyringes:item/syringe_filled"
+    }
+  ]
 }

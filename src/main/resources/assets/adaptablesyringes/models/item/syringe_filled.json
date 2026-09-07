@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "adaptablesyringes:item/syringe_filled",
+    "layer1": "adaptablesyringes:item/syringe_fluid"
+  }
+}

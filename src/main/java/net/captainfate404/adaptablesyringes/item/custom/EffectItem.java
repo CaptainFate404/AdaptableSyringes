@@ -16,6 +16,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import net.minecraft.nbt.NbtList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -42,10 +43,17 @@ public class EffectItem extends Item {
                     int level = effect.getAmplifier() + 1;
                     String levelString = level > 1 ? " " + level : "";
 
+                    int durationTicks = effect.getDuration();
+                    int totalSeconds = durationTicks / 20;
+                    int minutes = totalSeconds / 60;
+                    int seconds = totalSeconds % 60;
+
+                    String durationString = String.format(" (%d:%02d)", minutes, seconds);
+
                     Formatting color = effect.getEffectType().isBeneficial() ? Formatting.GREEN : Formatting.RED;
 
                     tooltip.add(Text.literal("- ").formatted(Formatting.DARK_GRAY)
-                            .append(effectName).append(levelString).formatted(color));
+                            .append(effectName).append(levelString).append(durationString).formatted(color));
                 }
             }
         } else {
@@ -79,7 +87,7 @@ public class EffectItem extends Item {
             ItemStack offHandStack = user.getOffHandStack();
 
             //check if the player has a potion in offhand and add effects to syringe
-            if (offHandStack.isOf(Items.POTION)) {
+            if (offHandStack.isOf(Items.POTION) && !mainHandStack.hasNbt() && (mainHandStack.getNbt() == null || !mainHandStack.getNbt().contains("StoredEffects", 9))) {
                 var effects = PotionUtil.getPotionEffects(offHandStack);
 
                 if (!effects.isEmpty()) {
@@ -91,6 +99,8 @@ public class EffectItem extends Item {
                             effect.writeNbt(effectNbt);
                             nbtEffectsList.add(effectNbt);
                         }
+
+                        //INCOMPLETE, SHOWS UNCRAFTABLE POTION
 
                         mainHandStack.getOrCreateNbt().put("StoredEffects", nbtEffectsList);
                         if (!user.getAbilities().creativeMode) {
@@ -108,6 +118,46 @@ public class EffectItem extends Item {
 
                     return TypedActionResult.success(mainHandStack, world.isClient());
                 }
+            }
+            else if (offHandStack.isOf(Items.GLASS_BOTTLE) && mainHandStack.hasNbt() && mainHandStack.getNbt().contains("StoredEffects", 9)) {
+                if (!world.isClient()) {
+                    NbtList nbtEffectsList = mainHandStack.getNbt().getList("StoredEffects", 10);
+
+                    ItemStack customPotion = new ItemStack(Items.POTION);
+
+                    java.util.List<StatusEffectInstance> effectsToTransfer = new java.util.ArrayList<>();
+                    for (int i = 0; i < nbtEffectsList.size(); i++) {
+                        StatusEffectInstance effect = StatusEffectInstance.fromNbt(nbtEffectsList.getCompound(i));
+                        if (effect != null) {
+                            effectsToTransfer.add(effect);
+                        }
+                    }
+
+                    PotionUtil.setCustomPotionEffects(customPotion, effectsToTransfer);
+
+                    mainHandStack.getNbt().remove("StoredEffects");
+
+                    if (!user.getAbilities().creativeMode) {
+                        offHandStack.decrement(1);
+                        if (offHandStack.isEmpty()) {
+                            user.setStackInHand(Hand.OFF_HAND, customPotion);
+                        } else {
+                            user.getInventory().offerOrDrop(customPotion);
+                        }
+                    } else {
+                        user.getInventory().offerOrDrop(customPotion);
+                    }
+                }
+
+                return TypedActionResult.success(mainHandStack, world.isClient());
+            }
+            //Empty syringe if it's full and player isn't injecting
+            else if (mainHandStack.hasNbt() && mainHandStack.getNbt().contains("StoredEffects", 9)) {
+                if (!world.isClient()) {
+                    mainHandStack.getNbt().remove("StoredEffects");
+                }
+
+                return TypedActionResult.success(mainHandStack,world.isClient());
             }
         }
         return TypedActionResult.pass(mainHandStack);
