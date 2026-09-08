@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 
 public class ModItems {
-    public static final EffectItem SYRINGE = (EffectItem) registerItem("syringe", new EffectItem(new FabricItemSettings()));
+    public static final EffectItem SYRINGE = (EffectItem) registerItem("syringe", new EffectItem(new FabricItemSettings().maxCount(1)));
     public static final Item NEEDLE = registerItem("needle", new Item(new FabricItemSettings()));
 
     private static void addItemsToToolsItemGroup(FabricItemGroupEntries entries) {

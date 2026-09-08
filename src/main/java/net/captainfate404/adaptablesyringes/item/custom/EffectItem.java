@@ -2,6 +2,7 @@ package net.captainfate404.adaptablesyringes.item.custom;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -50,7 +51,7 @@ public class EffectItem extends Item {
 
                     String durationString = String.format(" (%d:%02d)", minutes, seconds);
 
-                    Formatting color = effect.getEffectType().isBeneficial() ? Formatting.GREEN : Formatting.RED;
+                    Formatting color = effect.getEffectType().isBeneficial() ? Formatting.BLUE : Formatting.RED;
 
                     tooltip.add(Text.literal("- ").formatted(Formatting.DARK_GRAY)
                             .append(effectName).append(levelString).append(durationString).formatted(color));
@@ -79,6 +80,7 @@ public class EffectItem extends Item {
                         }
                     }
                     mainHandStack.getNbt().remove("StoredEffects");
+                    mainHandStack.getNbt().remove("OriginalPotionData");
                     return TypedActionResult.success(mainHandStack, world.isClient());
                 }
                 return TypedActionResult.fail(mainHandStack);
@@ -100,9 +102,14 @@ public class EffectItem extends Item {
                             nbtEffectsList.add(effectNbt);
                         }
 
-                        //INCOMPLETE, SHOWS UNCRAFTABLE POTION
+                        NbtCompound mainNbt = mainHandStack.getOrCreateNbt();
+                        mainNbt.put("StoredEffects", nbtEffectsList);
 
-                        mainHandStack.getOrCreateNbt().put("StoredEffects", nbtEffectsList);
+                        if (offHandStack.hasNbt()) {
+                            mainNbt.put("OriginalPotionData", offHandStack.getNbt().copy());
+                        }
+
+
                         if (!user.getAbilities().creativeMode) {
                             offHandStack.decrement(1);
 
@@ -118,24 +125,28 @@ public class EffectItem extends Item {
 
                     return TypedActionResult.success(mainHandStack, world.isClient());
                 }
-            }
-            else if (offHandStack.isOf(Items.GLASS_BOTTLE) && mainHandStack.hasNbt() && mainHandStack.getNbt().contains("StoredEffects", 9)) {
+            } else if (offHandStack.isOf(Items.GLASS_BOTTLE) && mainHandStack.hasNbt() && mainHandStack.getNbt().contains("StoredEffects", 9)) {
                 if (!world.isClient()) {
-                    NbtList nbtEffectsList = mainHandStack.getNbt().getList("StoredEffects", 10);
-
                     ItemStack customPotion = new ItemStack(Items.POTION);
 
-                    java.util.List<StatusEffectInstance> effectsToTransfer = new java.util.ArrayList<>();
-                    for (int i = 0; i < nbtEffectsList.size(); i++) {
-                        StatusEffectInstance effect = StatusEffectInstance.fromNbt(nbtEffectsList.getCompound(i));
-                        if (effect != null) {
-                            effectsToTransfer.add(effect);
+                    if (mainHandStack.getNbt().contains("OriginalPotionData", 10)) {
+                        customPotion.setNbt(mainHandStack.getNbt().getCompound("OriginalPotionData").copy());
+                    } else {
+                        NbtList nbtEffectsList = mainHandStack.getNbt().getList("StoredEffects", 10);
+
+                        java.util.List<StatusEffectInstance> effectsToTransfer = new java.util.ArrayList<>();
+                        for (int i = 0; i < nbtEffectsList.size(); i++) {
+                            StatusEffectInstance effect = StatusEffectInstance.fromNbt(nbtEffectsList.getCompound(i));
+                            if (effect != null) {
+                                effectsToTransfer.add(effect);
+                            }
                         }
+
+                        PotionUtil.setCustomPotionEffects(customPotion, effectsToTransfer);
                     }
 
-                    PotionUtil.setCustomPotionEffects(customPotion, effectsToTransfer);
-
                     mainHandStack.getNbt().remove("StoredEffects");
+                    mainHandStack.getNbt().remove("OriginalPotionData");
 
                     if (!user.getAbilities().creativeMode) {
                         offHandStack.decrement(1);
@@ -155,33 +166,41 @@ public class EffectItem extends Item {
             else if (mainHandStack.hasNbt() && mainHandStack.getNbt().contains("StoredEffects", 9)) {
                 if (!world.isClient()) {
                     mainHandStack.getNbt().remove("StoredEffects");
+                    mainHandStack.getNbt().remove("OriginalPotionData");
                 }
 
-                return TypedActionResult.success(mainHandStack,world.isClient());
+                return TypedActionResult.success(mainHandStack, world.isClient());
             }
         }
         return TypedActionResult.pass(mainHandStack);
     }
 
     @Override
-    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        //get StoredEffects list and apply effects from it to the target on hit
-        if (stack.hasNbt() && stack.getNbt().contains("StoredEffects", 9)) {
-            NbtList nbtEffectsList = stack.getNbt().getList("StoredEffects", 10);
+    public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity target, Hand hand) {
+        if (hand == Hand.MAIN_HAND) {
+            //get StoredEffects list and apply effects from it to the target on hit
+            if (stack.hasNbt() && stack.getNbt().contains("StoredEffects", 9)) {
+                if (!user.getWorld().isClient()) {
+                    NbtList nbtEffectsList = stack.getNbt().getList("StoredEffects", 10);
 
-            for (int i = 0; i < nbtEffectsList.size(); i++) {
-                NbtCompound effectNbt = nbtEffectsList.getCompound(i);
-                StatusEffectInstance effect = StatusEffectInstance.fromNbt(effectNbt);
 
-                if (effect != null) {
-                    target.addStatusEffect(effect);
+                    for (int i = 0; i < nbtEffectsList.size(); i++) {
+                        NbtCompound effectNbt = nbtEffectsList.getCompound(i);
+                        StatusEffectInstance effect = StatusEffectInstance.fromNbt(effectNbt);
+
+                        if (effect != null) {
+                            target.addStatusEffect(effect);
+                        }
+                    }
+
+                    stack.getNbt().remove("StoredEffects");
+                    stack.getNbt().remove("OriginalPotionData");
                 }
+
+                return ActionResult.success(user.getWorld().isClient());
+
             }
-
-            stack.getNbt().remove("StoredEffects");
         }
-
-        return super.postHit(stack, target, attacker);
-
+        return ActionResult.PASS;
     }
 }
