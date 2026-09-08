@@ -1,7 +1,0 @@
-- add right click functionality to syringe
-- [x] extract from potions and get effect on syringe
-- [x] inject self
-- [x] inject others [players, entities]
-- [ ] change syringe visuals based on if it is full or not
-- [ ] make syringe interior color change based on potion
-- [ ] add sounds [injection, extraction]
