@@ -7,5 +7,5 @@ UNIMPLEMENTED FEATURES
 ___
 
 Mod Links:  
-- CurseForge: NOT PUBLISHED
+- CurseForge: https://www.curseforge.com/minecraft/mc-mods/adaptablesyringes NOT PUBLISHED
 - Modrinth: NOT PUBLISHED
