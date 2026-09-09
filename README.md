@@ -4,3 +4,8 @@ ___
 UNIMPLEMENTED FEATURES
 - particle effects
 - sound effects
+___
+
+Mod Links:  
+- CurseForge: NOT PUBLISHED
+- Modrinth: NOT PUBLISHED
